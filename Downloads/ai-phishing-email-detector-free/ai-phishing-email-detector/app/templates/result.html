@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Scan Result · PhishGuard{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">ANALYSIS REPORT {% if historical %}· HISTORY{% endif %}</div><h1>Scan results</h1><p class="muted">{{ result.sender }} · {{ result.subject }}</p></div><a class="button secondary" href="{{ url_for('main.index') }}">+ New scan</a></div>
+{% if result.ai_error %}<div class="notice warning">{{ result.ai_error }}</div>{% endif %}
+<section class="result-grid">
+  <article class="panel score-panel">
+    <div class="eyebrow">COMBINED RISK SCORE</div>
+    <div class="score-ring score-{{ result.category|lower }}"><span>{{ result.score }}</span><small>/100</small></div>
+    <div class="risk-pill risk-{{ result.category|lower }}">{{ result.category }} risk</div>
+    <h2>{{ result.verdict }}</h2>
+    <p>{{ result.score_data.summary }}</p>
+    <div class="score-legend"><span>Rule signals: max 60</span><span>AI assessment: max 40</span></div>
+  </article>
+  <article class="panel">
+    <div class="eyebrow">RULE-BASED EVIDENCE</div><h2>Warning signs</h2>
+    {% if result.findings %}
+      {% for finding in result.findings %}
+      <div class="finding"><div class="finding-head"><strong>{{ finding.label }}</strong><span>+{{ finding.points }}</span></div><p>{{ finding.explanation }}</p>{% if finding.evidence %}<div class="evidence">Evidence: {{ finding.evidence|join(', ') }}</div>{% endif %}</div>
+      {% endfor %}
+    {% else %}<div class="empty-state">No configured rule indicators were detected. This does not prove the email is safe.</div>{% endif %}
+  </article>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><div class="eyebrow">LOCAL AI REVIEW</div><h2>Context and next steps</h2></div></div>
+  {% if result.ai.reasons %}<h3>AI reasons</h3><ul>{% for item in result.ai.reasons %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+  {% if result.ai.evidence %}<h3>AI evidence</h3><ul>{% for item in result.ai.evidence %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+  <h3>Recommended actions</h3><ul>{% for item in result.ai.next_steps %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p class="small"><b>Uncertainty:</b> {{ result.ai.uncertainty }}</p>
+  <div class="notice warning">This score is advisory, not a guarantee or a validated security standard. Never enter passwords or OTPs from an email link. Verify requests using a separate trusted channel.</div>
+  {% if result.id %}<div class="action-row"><a class="button secondary" href="{{ url_for('main.export_json', scan_id=result.id) }}">Download JSON report</a><a class="text-link" href="{{ url_for('main.history') }}">View scan history →</a></div>{% endif %}
+</section>
+{% endblock %}

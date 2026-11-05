@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Scan History · PhishGuard{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">LOCAL SQLITE STORAGE</div><h1>Scan history</h1><p class="muted">Your latest 200 matching scans on this computer.</p></div><a class="button primary" href="{{ url_for('main.index') }}">+ New scan</a></div>
+<section class="panel">
+<form method="get" class="filter-form"><input name="q" value="{{ q }}" placeholder="Search sender or subject"><select name="category"><option value="">All risk levels</option>{% for c in ['Low','Medium','High','Critical'] %}<option value="{{ c }}" {% if category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select><button class="button secondary">Filter</button></form>
+{% if rows %}
+<div class="history-list">{% for row in rows %}
+<div class="history-item"><div class="history-score score-text-{{ row['category']|lower }}">{{ row['score'] }}</div><div class="history-main"><a href="{{ url_for('main.scan_detail', scan_id=row['id']) }}"><strong>{{ row['subject'] }}</strong></a><p>{{ row['sender'] }}</p><span class="small">{{ row['scanned_at'] }} · {{ row['verdict'] }}</span></div><span class="risk-pill risk-{{ row['category']|lower }}">{{ row['category'] }}</span><form method="post" action="{{ url_for('main.delete_scan', scan_id=row['id']) }}" onsubmit="return confirm('Delete this scan?')"><button class="icon-button" title="Delete scan">×</button></form></div>
+{% endfor %}</div>
+<form method="post" action="{{ url_for('main.clear_history') }}" class="clear-form" onsubmit="return confirm('Permanently clear all scan history?')"><input type="hidden" name="confirm" value="yes"><button class="text-danger">Clear all history</button></form>
+{% else %}<div class="empty-state">No scans found. Analyze an email to create your first history entry.</div>{% endif %}
+</section>
+{% endblock %}

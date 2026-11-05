@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Analyze Email · PhishGuard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">LOCAL-FIRST EMAIL SECURITY</div>
+  <h1>Spot suspicious emails<br><span>before you trust them.</span></h1>
+  <p>Combine transparent warning-sign checks with a local AI model. Your email text is sent to your own Ollama service, not a paid AI API.</p>
+  <div class="status-row"><span class="status-dot {{ 'online' if status.available else 'offline' }}"></span>
+  Ollama {{ 'connected' if status.available else 'not detected' }} · Model: <b>{{ model }}</b></div>
+  {% if not status.available %}<p class="small warning-text">Rule-based analysis still works without Ollama. For AI analysis, install Ollama and download the model in the README.</p>{% endif %}
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><div class="eyebrow">NEW SCAN</div><h2>Analyze an email</h2></div><span class="step">01 / INPUT</span></div>
+  <form action="{{ url_for('main.analyze') }}" method="post" class="email-form">
+    <label for="sender">Sender email / display name</label>
+    <input id="sender" name="sender" maxlength="500" required placeholder="Example: Support Team &lt;support@example.com&gt;">
+    <label for="subject">Email subject</label>
+    <input id="subject" name="subject" maxlength="500" required placeholder="Example: Action required for your account">
+    <label for="body">Email body</label>
+    <textarea id="body" name="body" maxlength="12000" required rows="8" placeholder="Paste synthetic or authorized email text here..."></textarea>
+    <div class="form-foot"><span class="small">Max 12,000 characters. Do not paste secrets or real personal data.</span><button class="button primary" type="submit">Analyze email <span>→</span></button></div>
+  </form>
+</section>
+<section class="feature-grid">
+  <article class="mini-card"><div class="mini-icon">⌁</div><h3>Rule checks</h3><p>Links, urgency, credential requests, payment requests and possible sender mismatches.</p></article>
+  <article class="mini-card"><div class="mini-icon">◎</div><h3>Local AI</h3><p>Ollama reviews context and returns a structured, explainable assessment.</p></article>
+  <article class="mini-card"><div class="mini-icon">▤</div><h3>Scan history</h3><p>Save results in a local SQLite database and export reports as JSON.</p></article>
+</section>
+{% endblock %}
